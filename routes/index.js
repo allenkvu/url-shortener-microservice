@@ -13,9 +13,7 @@ var mLab = 'mongodb://' + config.db.host + '/' + config.db.name;
 var MongoClient = mongodb.MongoClient;
 
 module.exports = function(app) {
-    app.get('/', function(req, res, next) {
-      res.render('index', { title: 'Express' });
-    });
+    
 
     app.get('/new/:url(*)', function (req, res, next) {
         MongoClient.connect(mLab, function (err, db){
@@ -32,14 +30,14 @@ module.exports = function(app) {
                 var newLink = function(db, callback){
                     collection.findOne({"url": params }, {short: 1, _id: 0}, function(err, doc){
                     if(doc != null){
-                        res.json({ original_url: params, short_url: local + '/' + doc.short });
+                        res.json({ original_url: params, short_url: doc.short });
                     }
                     else{
                         if(validUrl.isUri(params)){
                             var shortCode = shortid.generate();
                             var newUrl = { url: params, short: shortCode};
                             collection.insert([newUrl]);
-                            res.json({original_url: params, short_url: local + shortCode});
+                            res.json({original_url: params, short_url: shortCode});
                         } 
                         else{
                            res.json({error: "Invalid url format"});
